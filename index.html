@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+<title>Eid Eidi Game 🌙 | Scratch & Win</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700;800&family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :root {
+    --gold: #f5c842;
+    --gold-dark: #e0a800;
+    --deep-green: #0a3d2e;
+    --green: #145a3c;
+    --light-green: #1d7a52;
+    --cream: #fdf6e3;
+    --red: #c0392b;
+    --card-bg: #1a5c3a;
+    --shadow: 0 20px 35px -12px rgba(0,0,0,0.4);
+  }
+
+  body {
+    min-height: 100vh;
+    background: radial-gradient(circle at 20% 30%, #0e4a36, #05271e);
+    font-family: 'Poppins', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* floating stars */
+  .stars {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .star {
+    position: absolute;
+    background: var(--gold);
+    border-radius: 50%;
+    animation: twinkle var(--dur, 3s) infinite ease-in-out;
+    opacity: 0;
+  }
+  @keyframes twinkle {
+    0%,100% { opacity: 0; transform: scale(0.6); }
+    50% { opacity: 0.8; transform: scale(1.2); }
+  }
+
+  /* main containers */
+  .game-container, .scratch-container {
+    position: relative;
+    z-index: 2;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 20px;
+  }
+
+  .scratch-container {
+    display: none;
+    justify-content: flex-start;
+    padding-top: 40px;
+  }
+
+  /* card UI (game panel) */
+  .eidi-panel {
+    max-width: 520px;
+    width: 100%;
+    background: linear-gradient(145deg, var(--green), var(--card-bg));
+    border-radius: 56px;
+    border: 1px solid rgba(245,200,66,0.4);
+    box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,200,0.1);
+    padding: 32px 24px;
+    backdrop-filter: blur(2px);
+    transition: all 0.2s ease;
+  }
+
+  .moon-icon {
+    font-size: 3.2rem;
+    text-align: center;
+    animation: floatMoon 3s ease-in-out infinite;
+    display: block;
+  }
+  @keyframes floatMoon {
+    0%,100% { transform: translateY(0px) rotate(-4deg); }
+    50% { transform: translateY(-10px) rotate(4deg); }
+  }
+
+  .title-main {
+    font-family: 'Amiri', serif;
+    font-size: clamp(2rem, 7vw, 3.3rem);
+    color: var(--gold);
+    text-align: center;
+    text-shadow: 0 2px 15px rgba(0,0,0,0.4);
+    letter-spacing: 1px;
+    margin: 6px 0 4px;
+  }
+  .subhead {
+    color: rgba(253,246,227,0.75);
+    text-align: center;
+    font-size: 0.85rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+
+  /* hint message box */
+  .hint-card {
+    background: rgba(0,0,0,0.3);
+    border-radius: 60px;
+    padding: 12px 18px;
+    margin-bottom: 28px;
+    text-align: center;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .hint-text {
+    font-size: clamp(0.85rem, 4vw, 1rem);
+    font-weight: 600;
+    transition: all 0.2s;
+    line-height: 1.4;
+  }
+  .hint-text.lower { color: #ffaa99; text-shadow: 0 0 3px #c0392b; }
+  .hint-text.higher { color: #a3f5c5; text-shadow: 0 0 3px #1d7a52; }
+  .hint-text.start { color: #ffecb3; opacity: 0.9; }
+
+  /* input row */
+  .input-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .guess-input {
+    flex: 2;
+    background: #0a2b1f;
+    border: 2px solid rgba(245,200,66,0.4);
+    border-radius: 60px;
+    padding: 14px 20px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--cream);
+    font-family: 'Poppins', monospace;
+    text-align: center;
+    outline: none;
+    transition: 0.2s;
+  }
+  .guess-input:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(245,200,66,0.3);
+  }
+  .btn-primary {
+    background: linear-gradient(115deg, var(--gold), var(--gold-dark));
+    border: none;
+    border-radius: 60px;
+    padding: 0 28px;
+    font-weight: 800;
+    font-size: 1rem;
+    color: #1f3d2c;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    transition: 0.2s;
+    box-shadow: 0 6px 0 #b47c00;
+    transform: translateY(-2px);
+  }
+  .btn-primary:active {
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 #b47c00;
+  }
+  @media (max-width: 480px) {
+    .input-group { flex-direction: column; }
+    .btn-primary { padding: 14px; text-align: center; }
+  }
+
+  /* attempts dots */
+  .attempts-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 15px 0 6px;
+    flex-wrap: wrap;
+  }
+  .dot {
+    width: 12px;
+    height: 12px;
+    background: rgba(245,200,66,0.2);
+    border-radius: 50%;
+    border: 1px solid rgba(245,200,66,0.5);
+    transition: 0.2s;
+  }
+  .dot.used {
+    background: var(--gold);
+    box-shadow: 0 0 8px gold;
+  }
+  .attempts-text {
+    text-align: center;
+    font-size: 0.7rem;
+    color: #d4cfb0;
+    margin-bottom: 20px;
+  }
+
+  /* win banner */
+  .win-banner {
+    display: none;
+    text-align: center;
+    margin-top: 20px;
+    animation: bounceWin 0.5s cubic-bezier(0.34,1.2,0.64,1);
+  }
+  @keyframes bounceWin {
+    0% { opacity: 0; transform: scale(0.7); }
+    80% { transform: scale(1.05); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  .win-msg-big {
+    font-family: 'Amiri', serif;
+    font-size: 1.8rem;
+    color: var(--gold);
+    font-weight: bold;
+    margin: 12px 0;
+  }
+  .btn-eidi-gift {
+    background: radial-gradient(circle at 30% 10%, #ffc857, #ff9f1a);
+    border: none;
+    border-radius: 60px;
+    padding: 14px 32px;
+    font-weight: 900;
+    font-size: 1.2rem;
+    color: #1f3d2c;
+    margin-top: 10px;
+    cursor: pointer;
+    animation: pulseGlow 1.2s infinite;
+    transition: 0.2s;
+  }
+  @keyframes pulseGlow {
+    0%,100% { box-shadow: 0 0 0 0 rgba(245,200,66,0.6); }
+    50% { box-shadow: 0 0 0 12px rgba(245,200,66,0); }
+  }
+
+  /* scratch cards grid */
+  .scratch-title {
+    font-family: 'Amiri', serif;
+    font-size: clamp(1.8rem, 6vw, 2.8rem);
+    color: var(--gold);
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 180px));
+    justify-content: center;
+    gap: 22px;
+    width: 100%;
+    max-width: 700px;
+    margin: 32px auto;
+    padding: 0 16px;
+  }
+
+  .card-wrapper {
+    aspect-ratio: 3 / 4;
+    perspective: 800px;
+    cursor: pointer;
+  }
+
+  .scratch-card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 20px 30px -8px black;
+    transition: transform 0.2s ease;
+  }
+  .scratch-card:active {
+    transform: scale(0.98);
+  }
+
+  /* Message layer (hidden under foil) */
+  .card-message {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(145deg, #0d3522, #1c543b);
+    border-radius: 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 16px;
+    z-index: 1;
+    border: 1px solid rgba(245,200,66,0.3);
+  }
+  .msg-icon {
+    font-size: 2.8rem;
+    margin-bottom: 10px;
+  }
+  .msg-gold {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--gold);
+    font-family: 'Amiri', serif;
+  }
+  .msg-desc {
+    font-size: 0.7rem;
+    color: var(--cream);
+    margin-top: 8px;
+    line-height: 1.35;
+  }
+
+  /* Scratch foil layer (canvas + UI) */
+  .foil-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    border-radius: 28px;
+    overflow: hidden;
+    transition: opacity 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+  }
+  .scratch-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: grab;
+    touch-action: none;
+    border-radius: 28px;
+  }
+  .foil-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    background: radial-gradient(circle at 30% 20%, rgba(0,0,0,0.1), transparent);
+  }
+  .foil-text {
+    color: white;
+    font-weight: 800;
+    text-shadow: 0 2px 5px black;
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(3px);
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+  }
+  .foil-emoji {
+    font-size: 2rem;
+    margin-bottom: 8px;
+  }
+
+  .scratch-card.revealed .foil-layer {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s;
+  }
+
+  /* confetti */
+  .confetti-burst {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1000;
+    overflow: hidden;
+  }
+  .confetti-piece {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: gold;
+    opacity: 0;
+    animation: fall 2s linear forwards;
+  }
+   /* Urdu Poetry Styles - Beautiful & Meaningful */
+  .urdu-poetry {
+    text-align: center;
+    margin: 8px 0 12px 0;
+    direction: rtl;
+    font-family: 'Amiri', serif;
+  }
+  .verse-line {
+    display: block;
+    font-size: clamp(1rem, 4.5vw, 1.45rem);
+    font-weight: 700;
+    color: var(--gold);
+    text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    letter-spacing: 0.5px;
+    line-height: 1.5;
+    margin: 6px 0;
+  }
+  .verse-line:first-child {
+    margin-top: 0;
+  }
+  .verse-line small {
+    font-size: 0.7em;
+    opacity: 0.9;
+  }
+  .poetry-divider {
+    width: 60px;
+    height: 2px;
+    background: rgba(245,200,66,0.5);
+    margin: 12px auto;
+    border-radius: 2px;
+  }
+
+  @keyframes fall {
+    0% { opacity: 1; transform: translateY(-20px) rotate(0deg); }
+    100% { opacity: 0; transform: translateY(100vh) rotate(600deg); }
+  }
+
+  /* responsive touches */
+  @media (max-width: 550px) {
+    .cards-grid { gap: 14px; grid-template-columns: repeat(2, 1fr); }
+    .card-wrapper { max-width: 160px; margin: 0 auto; width: 100%; }
+    .eidi-panel { padding: 24px 18px; }
+  }
+  @media (max-width: 380px) {
+    .cards-grid { gap: 12px; }
+    .msg-gold { font-size: 1rem; }
+  }
+</style>
+</head>
+<body>
+<div class="stars" id="stars-bg"></div>
+<div id="confetti-area" class="confetti-burst"></div>
+
+<!-- GUESSING SECTION -->
+<div id="gameSection" class="game-container">
+  <div class="eidi-panel">
+    <div class="moon-icon">🌙✨</div>
+        <!-- Urdu Poetry - Beautiful & Meaningful -->
+    <div class="urdu-poetry">
+      <span class="verse-line">گرم گرم روٹی توڑی نہیں جاتی</span>
+      <span class="verse-line">آپ سے دوستی توڑی نہیں جاتی</span>
+      <div class="poetry-divider"></div>
+      <span class="verse-line">گرم گرم روٹی کھائی نہیں جاتی</span>
+      <span class="verse-line">عیدی کے بغیر عید منائی نہیں جاتی</span>
+    </div>
+    <p class="subhead">✨ Secret Number · Eid Magic ✨</p>
+    
+    <div class="hint-card">
+      <div class="hint-text start" id="dynamicHint">🌟 Mein ne ek raaz chhupa rakha hai (1-100)... Guess karo! 🌟</div>
+    </div>
+    
+    <div class="input-group">
+      <input type="number" id="guessNumber" class="guess-input" placeholder="1 to 100" min="1" max="100" inputmode="numeric">
+      <button id="guessAction" class="btn-primary">🔮 Guess!</button>
+    </div>
+    
+    <div class="attempts-dots" id="attemptDotsContainer"></div>
+    <div class="attempts-text" id="attemptCounter">Chances used: 0 / 10</div>
+    
+    <div id="winZone" class="win-banner">
+      <div>🎉🥳🎉</div>
+      <div class="win-msg-big">ACHA JEE TO EIDI CHIYE HI CHIYE!</div>
+      <button id="unlockEidiBtn" class="btn-eidi-gift">🎁 Click here to Get Your Eidi! 🎁</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCRATCH SECTION (EIDI CARDS) -->
+<div id="scratchSection" class="scratch-container">
+  <h2 class="scratch-title">🌟 Apna Eidi Card Chuno 🌟</h2>
+  <p style="color:#ffe2b5; text-align:center; margin-bottom: 10px; font-size:0.85rem;">✨ Scratch karo aur apni eidi pao ✨</p>
+  <div id="cardsGrid" class="cards-grid"></div>
+</div>
+
+<script>
+  // ------------------------- STARFIELD -------------------------
+  (function createStars() {
+    const starContainer = document.getElementById('stars-bg');
+    for (let i=0; i<80; i++) {
+      const star = document.createElement('div');
+      star.classList.add('star');
+      const size = Math.random() * 3 + 1;
+      star.style.width = size + 'px';
+      star.style.height = size + 'px';
+      star.style.top = Math.random() * 100 + '%';
+      star.style.left = Math.random() * 100 + '%';
+      star.style.setProperty('--dur', (Math.random() * 3 + 2) + 's');
+      star.style.animationDelay = (Math.random() * 5) + 's';
+      starContainer.appendChild(star);
+    }
+  })();
+
+  // ------------------------- GAME CORE -------------------------
+  const SECRET_NUM = 12;       // secret eidi number
+  let attemptsLeft = 10;
+  let attemptsUsed = 0;
+  let gameActive = true;
+  
+  const hintEl = document.getElementById('dynamicHint');
+  const guessInput = document.getElementById('guessNumber');
+  const guessBtn = document.getElementById('guessAction');
+  const winBanner = document.getElementById('winZone');
+  const attemptDots = document.getElementById('attemptDotsContainer');
+  const attemptCounterText = document.getElementById('attemptCounter');
+  const unlockBtn = document.getElementById('unlockEidiBtn');
+
+  // init attempt dots
+  function initAttemptDots() {
+    attemptDots.innerHTML = '';
+    for (let i=0; i<10; i++) {
+      const dot = document.createElement('div');
+      dot.classList.add('dot');
+      dot.setAttribute('data-idx', i);
+      attemptDots.appendChild(dot);
+    }
+  }
+  initAttemptDots();
+  function updateAttemptUI() {
+    const dots = document.querySelectorAll('.dot');
+    for (let i=0; i<attemptsUsed; i++) {
+      if(dots[i]) dots[i].classList.add('used');
+    }
+    attemptCounterText.innerText = `Chances used: ${attemptsUsed} / 10`;
+  }
+
+  function setHintMessage(msg, type = 'neutral') {
+    hintEl.innerText = msg;
+    hintEl.classList.remove('lower', 'higher', 'start');
+    if(type === 'lower') hintEl.classList.add('lower');
+    else if(type === 'higher') hintEl.classList.add('higher');
+    else hintEl.classList.add('start');
+  }
+
+  function endGameLoss() {
+    gameActive = false;
+    guessBtn.disabled = true;
+    guessInput.disabled = true;
+    setHintMessage(`💔 Game Over! Secret number tha ${SECRET_NUM}. Agli Eid pehle aana! 💔`, 'neutral');
+  }
+
+  function launchConfettiExplosion() {
+    const container = document.getElementById('confetti-area');
+    container.innerHTML = '';
+    const colors = ['#f5c842', '#ffaa33', '#ffd966', '#ffb347', '#ff6b6b', '#4cd964'];
+    for (let i=0; i<140; i++) {
+      const piece = document.createElement('div');
+      piece.classList.add('confetti-piece');
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      const size = Math.random() * 10 + 5;
+      piece.style.background = color;
+      piece.style.width = size + 'px';
+      piece.style.height = size * 0.6 + 'px';
+      piece.style.left = Math.random() * 100 + '%';
+      piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      piece.style.setProperty('--dur', (Math.random() * 2 + 1.2) + 's');
+      piece.style.animationDelay = (Math.random() * 0.4) + 's';
+      container.appendChild(piece);
+    }
+    setTimeout(() => { container.innerHTML = ''; }, 2200);
+  }
+
+  function makeGuess() {
+    if (!gameActive) return;
+    const rawVal = guessInput.value.trim();
+    if (rawVal === "") {
+      setHintMessage("🔢 Aisy Kaisy Kuch tu Likhy jee! 1-100 ke beech mein.", "neutral");
+      return;
+    }
+    const guess = Number(rawVal);
+    if (isNaN(guess) || guess < 1 || guess > 100) {
+      setHintMessage("❓ Sirf 1 se 100 ke beech number dalain Jee!", "neutral");
+      guessInput.value = '';
+      return;
+    }
+    if (attemptsUsed >= 10) return;
+    
+    attemptsUsed++;
+    updateAttemptUI();
+    
+    if (guess === SECRET_NUM) {
+      // WIN condition
+      gameActive = false;
+      setHintMessage(`🎉 SUBHANALLAH! ${SECRET_NUM} sahi jawab! Aap tu jeet gayi! 🎉`, "neutral");
+      winBanner.style.display = 'block';
+      guessBtn.disabled = true;
+      guessInput.disabled = true;
+      launchConfettiExplosion();
+      return;
+    }
+    
+    if (attemptsUsed >= 10) {
+      endGameLoss();
+      return;
+    }
+    
+    // Provide hint
+    if (guess > SECRET_NUM) {
+      setHintMessage(`🔻 ${guess} se neeche hai! Thoda kam karain jee. 🔻`, "lower");
+    } else {
+      setHintMessage(`🔼 ${guess} se upar hai! Mazeed barhain. 🔼`, "higher");
+    }
+    guessInput.value = '';
+    guessInput.focus();
+  }
+
+  guessBtn.addEventListener('click', makeGuess);
+  guessInput.addEventListener('keypress', (e) => {
+    if(e.key === 'Enter') makeGuess();
+  });
+  
+  // Show scratch cards
+  function showScratchGame() {
+    document.getElementById('gameSection').style.display = 'none';
+    const scratchSec = document.getElementById('scratchSection');
+    scratchSec.style.display = 'flex';
+    buildScratchCards();
+  }
+  
+  unlockBtn.addEventListener('click', () => {
+    if (!gameActive && winBanner.style.display === 'block') {
+      showScratchGame();
+    } else if (gameActive) {
+      setHintMessage("Pehle number sahi guess karo! Eid Mubarak ki tayyari karo 😊", "neutral");
+    } else if (attemptsUsed >=10 && !winBanner.style.display === 'block') {
+      setHintMessage("Game over ho chuka, refresh karke naya game khelo! 🌙", "neutral");
+    }
+  });
+  
+  // ----------------------- SCRATCH CARDS LOGIC (MOBILE + PC FRIENDLY) -----------------------
+  const MESSAGES_BANK = [
+    { icon: "😂", gold: "HEHEHEH!", desc: "You got pranked!hehehehehe.... 😜" },
+    { icon: "📅", gold: "Next Time!", desc: "Eidi next Eid par... InshAllah 🌙" },
+    { icon: "💸", gold: "Rs 1/-", desc: "Rs 1 mil gaya! Moojain mary 😂" },
+    { icon: "💰", gold: "Rs 1,000/-", desc: "Woohoo! 1000 rupay ki eidi! Kya khareedoge?" },
+    { icon: "🤔", gold: "Leave it...", desc: " Lets get something more then 1,10,100 or 1000 🕊️" },
+    { icon: "😭", gold: "Rs 10,000/-", desc: "MashaAllah! 10,000 ki eidi! Aap to ameer ho gayi 🥹" }
+  ];
+  
+  function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+  
+  function buildScratchCards() {
+    const grid = document.getElementById('cardsGrid');
+    grid.innerHTML = '';
+    const shuffledMessages = shuffleArray([...MESSAGES_BANK]);
+    
+    shuffledMessages.forEach((msgData, idx) => {
+      const cardWrap = document.createElement('div');
+      cardWrap.className = 'card-wrapper';
+      
+      const scratchCardDiv = document.createElement('div');
+      scratchCardDiv.className = 'scratch-card';
+      
+      // message layer (back)
+      const messageLayer = document.createElement('div');
+      messageLayer.className = 'card-message';
+      messageLayer.innerHTML = `
+        <div class="msg-icon">${msgData.icon}</div>
+        <div class="msg-gold">${msgData.gold}</div>
+        <div class="msg-desc">${msgData.desc}</div>
+      `;
+      
+      // foil layer (scratchable canvas)
+      const foilLayer = document.createElement('div');
+      foilLayer.className = 'foil-layer';
+      
+      const canvas = document.createElement('canvas');
+      canvas.className = 'scratch-canvas';
+      canvas.width = 0;
+      canvas.height = 0;
+      
+      const foilOverlay = document.createElement('div');
+      foilOverlay.className = 'foil-overlay';
+      foilOverlay.innerHTML = `
+        <div class="foil-emoji">🌙✨</div>
+        <div class="foil-text">SCRATCH ME</div>
+        <div style="font-size:10px; margin-top:6px;">EID MUBARAK</div>
+      `;
+      
+      foilLayer.appendChild(canvas);
+      foilLayer.appendChild(foilOverlay);
+      scratchCardDiv.appendChild(messageLayer);
+      scratchCardDiv.appendChild(foilLayer);
+      cardWrap.appendChild(scratchCardDiv);
+      grid.appendChild(cardWrap);
+      
+      // init scratch after mount (ensure canvas size)
+      initCardScratch(canvas, scratchCardDiv, foilLayer);
+    });
+  }
+  
+  function initCardScratch(canvas, cardElement, foilLayer) {
+    let isDrawing = false;
+    let ctx = null;
+    let initialized = false;
+    let animationFrame = null;
+    
+    function resizeAndDraw() {
+      const containerRect = canvas.parentElement.getBoundingClientRect();
+      if (containerRect.width === 0 || containerRect.height === 0) {
+        requestAnimationFrame(resizeAndDraw);
+        return;
+      }
+      const w = containerRect.width;
+      const h = containerRect.height;
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w;
+        canvas.height = h;
+        if (ctx) drawFoilTexture(ctx, w, h);
+      } else if (!initialized) {
+        drawFoilTexture(ctx, w, h);
+      }
+      initialized = true;
+    }
+    
+    function drawFoilTexture(ctxContext, w, h) {
+      if (!ctxContext) return;
+      const grad = ctxContext.createLinearGradient(0, 0, w*0.7, h);
+      grad.addColorStop(0, '#d4af37');
+      grad.addColorStop(0.3, '#f7d44a');
+      grad.addColorStop(0.6, '#b8860b');
+      grad.addColorStop(1, '#e6b422');
+      ctxContext.fillStyle = grad;
+      ctxContext.fillRect(0, 0, w, h);
+      // metallic glitter
+      for (let i = 0; i < 70; i++) {
+        ctxContext.fillStyle = `rgba(255, 240, 150, ${Math.random() * 0.6 + 0.2})`;
+        ctxContext.beginPath();
+        ctxContext.arc(Math.random() * w, Math.random() * h, Math.random() * 2.2 + 0.8, 0, Math.PI * 2);
+        ctxContext.fill();
+      }
+      ctxContext.font = `bold ${Math.max(12, w * 0.07)}px "Poppins", sans-serif`;
+      ctxContext.fillStyle = "rgba(255,255,200,0.7)";
+      ctxContext.shadowBlur = 0;
+      ctxContext.textAlign = "center";
+      ctxContext.fillText("✦", w/2, h/2 - 10);
+      ctxContext.font = `${Math.max(8, w*0.055)}px "Poppins"`;
+      ctxContext.fillStyle = "#fff5cf";
+      ctxContext.fillText("EIDI CARD", w/2, h - 25);
+    }
+    
+    function setupCanvas() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      if (rect.width === 0) {
+        setTimeout(setupCanvas, 30);
+        return;
+      }
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      ctx = canvas.getContext('2d');
+      drawFoilTexture(ctx, canvas.width, canvas.height);
+      initialized = true;
+    }
+    
+    // Use ResizeObserver / fallback
+    const resizeObserver = new ResizeObserver(() => {
+      if (canvas.parentElement) {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) {
+          canvas.width = rect.width;
+          canvas.height = rect.height;
+          if (ctx) drawFoilTexture(ctx, canvas.width, canvas.height);
+        }
+      }
+    });
+    if (canvas.parentElement) resizeObserver.observe(canvas.parentElement);
+    
+    setTimeout(() => {
+      if (!initialized) setupCanvas();
+    }, 80);
+    
+    function getEventCoords(e) {
+      const rect = canvas.getBoundingClientRect();
+      let clientX, clientY;
+      if (e.touches) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+      }
+      let x = clientX - rect.left;
+      let y = clientY - rect.top;
+      x = Math.min(Math.max(0, x), canvas.width);
+      y = Math.min(Math.max(0, y), canvas.height);
+      return { x, y };
+    }
+    
+    function scratchAt(x, y) {
+      if (!ctx || !initialized) return;
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.beginPath();
+      ctx.arc(x, y, 24, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+      checkRevealThreshold();
+    }
+    
+    function checkRevealThreshold() {
+      if (!canvas || !ctx) return;
+      if (cardElement.classList.contains('revealed')) return;
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      let transparentPixels = 0;
+      for (let i = 3; i < imgData.length; i += 4) {
+        if (imgData[i] === 0) transparentPixels++;
+      }
+      const percentCleared = (transparentPixels / (canvas.width * canvas.height)) * 100;
+      if (percentCleared > 38) {
+        cardElement.classList.add('revealed');
+        // tiny celebration for reveal
+        const confettiDiv = document.getElementById('confetti-area');
+        for (let i=0;i<30;i++) {
+          const p = document.createElement('div');
+          p.classList.add('confetti-piece');
+          p.style.background = `hsl(${Math.random()*360}, 80%, 60%)`;
+          p.style.width = '6px';
+          p.style.height = '6px';
+          p.style.left = Math.random() * 100 + '%';
+          p.style.animationDelay = '0s';
+          p.style.animationDuration = '0.9s';
+          confettiDiv.appendChild(p);
+          setTimeout(() => p.remove(), 1000);
+        }
+      }
+    }
+    
+    function handleStart(e) {
+      e.preventDefault();
+      isDrawing = true;
+      const { x, y } = getEventCoords(e);
+      scratchAt(x, y);
+    }
+    function handleMove(e) {
+      if (!isDrawing) return;
+      e.preventDefault();
+      const { x, y } = getEventCoords(e);
+      scratchAt(x, y);
+    }
+    function handleEnd() { isDrawing = false; }
+    
+    canvas.addEventListener('mousedown', handleStart);
+    window.addEventListener('mousemove', (e) => {
+      if (isDrawing && canvas) {
+        const rect = canvas.getBoundingClientRect();
+        if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
+          handleMove(e);
+        } else handleEnd();
+      }
+    });
+    window.addEventListener('mouseup', handleEnd);
+    canvas.addEventListener('touchstart', handleStart, { passive: false });
+    canvas.addEventListener('touchmove', handleMove, { passive: false });
+    canvas.addEventListener('touchend', handleEnd);
+  }
+  
+  // optional: if user refreshes and wins again, everything works.
+  window.addEventListener('load', () => {
+    // ensure game state fresh
+    attemptsUsed = 0;
+    gameActive = true;
+    updateAttemptUI();
+    guessBtn.disabled = false;
+    guessInput.disabled = false;
+    winBanner.style.display = 'none';
+    setHintMessage("🌟 I though a number bewteen 1 to 100 Guess it , Win it! 🌟", "start");
+    guessInput.value = '';
+  });
+</script>
+</body>
+</html>
